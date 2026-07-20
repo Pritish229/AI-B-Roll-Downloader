@@ -28,12 +28,22 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+const os = require('os');
+
+// Helper to determine writable storage base directory (uses /tmp on Vercel)
+const getStorageBase = (folder) => {
+  if (process.env.VERCEL) {
+    return path.join(os.tmpdir(), 'ai-broll', folder);
+  }
+  return path.join(__dirname, folder);
+};
+
 // Ensure required directories exist at startup
 const initializeDirs = async () => {
   const dirs = [
-    path.join(__dirname, 'uploads'),
-    path.join(__dirname, 'downloads'),
-    path.join(__dirname, 'temp')
+    getStorageBase('uploads'),
+    getStorageBase('downloads'),
+    getStorageBase('temp')
   ];
 
   for (const dir of dirs) {
@@ -47,7 +57,7 @@ initializeDirs().catch(err => {
 });
 
 // Serve static assets if needed
-app.use('/static', express.static(path.join(__dirname, 'downloads')));
+app.use('/static', express.static(getStorageBase('downloads')));
 
 // Register router
 app.use('/api', apiRouter);
@@ -72,10 +82,14 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || 'Internal Server Error' });
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`========================================`);
-  console.log(` AI B-Roll Downloader Server Initialized`);
-  console.log(` Running on: http://localhost:${PORT}`);
-  console.log(`========================================`);
-});
+// Start Server locally if executed directly
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`========================================`);
+    console.log(` AI B-Roll Downloader Server Initialized`);
+    console.log(` Running on: http://localhost:${PORT}`);
+    console.log(`========================================`);
+  });
+}
+
+module.exports = app;
