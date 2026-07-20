@@ -61,17 +61,6 @@
         </div>
 
         <button 
-          @click="isKeyModalOpen = true" 
-          class="flex items-center gap-1.5 bg-purple-950/40 hover:bg-purple-900/60 border border-purple-700/50 text-purple-300 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all shadow-glow-accent"
-          title="Configure custom API keys for Groq, Pexels, Pixabay, Unsplash, Vecteezy"
-        >
-          <svg class="w-3.5 h-3.5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 0121 9z" />
-          </svg>
-          ⚙️ API Keys
-        </button>
-
-        <button 
           v-if="projectStore.projectId"
           @click="confirmReset" 
           class="flex items-center gap-1.5 bg-red-950/40 hover:bg-red-900/50 border border-red-900/50 text-red-400 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all"
@@ -137,30 +126,20 @@
       </div>
     </footer>
 
-    <!-- Custom API Key Settings Modal -->
-    <ApiKeyModal 
-      :isOpen="isKeyModalOpen" 
-      @close="isKeyModalOpen = false" 
-    />
   </div>
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProjectStore } from './stores/project';
-import ApiKeyModal from './components/ApiKeyModal.vue';
 
 export default {
   name: 'App',
-  components: {
-    ApiKeyModal
-  },
   setup() {
     const projectStore = useProjectStore();
     const route = useRoute();
     const router = useRouter();
-    const isKeyModalOpen = ref(false);
 
     const steps = [
       { name: 'Upload Script', route: 'upload' },
@@ -206,8 +185,7 @@ export default {
       isStepUnlocked,
       navigateStep,
       confirmReset,
-      goHome,
-      isKeyModalOpen
+      goHome
     };
   }
 };
