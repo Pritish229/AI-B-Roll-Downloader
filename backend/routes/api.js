@@ -9,14 +9,15 @@ const storage = multer.memoryStorage();
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (ext !== '.srt') {
-      return cb(new Error('Only .srt files are allowed!'), false);
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    const validExts = ['.srt', '.vtt', '.txt'];
+    if (ext && !validExts.includes(ext)) {
+      return cb(new Error('Invalid file format. Please upload a standard subtitle file (.srt, .vtt, .txt).'), false);
     }
     cb(null, true);
   },
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit for SRT (subtitles are text, usually under 100KB)
+    fileSize: 10 * 1024 * 1024 // 10MB limit for subtitles
   }
 });
 

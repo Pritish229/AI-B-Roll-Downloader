@@ -12,6 +12,7 @@ const zipService = require('../services/zipService');
 const unsplashService = require('../services/unsplashService');
 const vecteezyService = require('../services/vecteezyService');
 const keyService = require('../services/keyService');
+const storageService = require('../utils/storageService');
 
 class ProjectController {
   constructor() {
@@ -27,14 +28,14 @@ class ProjectController {
         return res.status(400).json({ error: 'No file uploaded. Please upload a .srt file.' });
       }
 
-      const srtContent = req.file.buffer.toString('utf-8');
+      const srtContent = storageService.bufferToString(req.file.buffer);
       const projectId = `project_${Date.now()}`;
       
       // Parse subtitles
       const subtitles = srtParserService.parse(srtContent);
 
       // Create uploads folder for this project
-      const projectUploadDir = path.join(__dirname, '..', 'uploads', projectId);
+      const projectUploadDir = storageService.getPath('uploads', projectId);
       await fs.ensureDir(projectUploadDir);
 
       // Save original SRT file and parsed JSON
@@ -58,7 +59,7 @@ class ProjectController {
   async getScript(req, res) {
     try {
       const { projectId } = req.params;
-      const uploadDir = path.join(__dirname, '..', 'uploads', projectId);
+      const uploadDir = storageService.getPath('uploads', projectId);
       const taggedJsonPath = path.join(uploadDir, 'subtitles_with_tags.json');
       const jsonPath = path.join(uploadDir, 'subtitles.json');
       const storyPath = path.join(uploadDir, 'story.json');
@@ -99,7 +100,7 @@ class ProjectController {
       }
 
       let subsToProcess = subtitles;
-      const projectUploadDir = path.join(__dirname, '..', 'uploads', projectId);
+      const projectUploadDir = storageService.getPath('uploads', projectId);
 
       // If subtitles not provided in body, load from disk
       if (!subsToProcess) {
@@ -146,7 +147,7 @@ class ProjectController {
       }
 
       let subsToProcess = subtitles;
-      const projectUploadDir = path.join(__dirname, '..', 'uploads', projectId);
+      const projectUploadDir = storageService.getPath('uploads', projectId);
 
       // If subtitles not provided in body, load from disk
       if (!subsToProcess) {
@@ -228,8 +229,8 @@ class ProjectController {
       }
 
       // Initialize download directory
-      const downloadsDir = path.join(__dirname, '..', 'downloads', projectId);
-      const zipOutPath = path.join(__dirname, '..', 'downloads', `${projectId}.zip`);
+      const downloadsDir = storageService.getPath('downloads', projectId);
+      const zipOutPath = storageService.getPath('downloads', `${projectId}.zip`);
 
       // ── CLEANUP: Remove stale artifacts from any previous run for this project ──
       // This prevents old metadata.json, old assets, and old ZIPs from interfering.
@@ -243,7 +244,7 @@ class ProjectController {
           console.log(`[Cleanup] Removed old ZIP: ${zipOutPath}`);
         }
         // Also remove the persisted progress file so a stale 'completed' state isn't restored
-        const progressFile = path.join(__dirname, '..', 'downloads', '.progress', `${projectId}.json`);
+        const progressFile = storageService.getPath('downloads', '.progress', `${projectId}.json`);
         if (await fs.pathExists(progressFile)) {
           await fs.remove(progressFile);
           console.log(`[Cleanup] Removed stale progress file for ${projectId}`);
@@ -542,7 +543,7 @@ class ProjectController {
           const originalScriptDest = path.join(downloadsDir, 'original-script');
           await fs.ensureDir(originalScriptDest);
           
-          const sourceSrtPath = path.join(__dirname, '..', 'uploads', projectId, 'script.srt');
+          const sourceSrtPath = storageService.getPath('uploads', projectId, 'script.srt');
           if (await fs.pathExists(sourceSrtPath)) {
             await fs.copy(sourceSrtPath, path.join(originalScriptDest, 'script.srt'));
           }
@@ -650,10 +651,10 @@ class ProjectController {
    */
   async executeProjectCleanup(projectId) {
     console.log(`[Cleanup] Running automatic purge for project: ${projectId}...`);
-    const uploadsDir = path.join(__dirname, '..', 'uploads', projectId);
-    const downloadsDir = path.join(__dirname, '..', 'downloads', projectId);
-    const zipPath = path.join(__dirname, '..', 'downloads', `${projectId}.zip`);
-    const progressFile = path.join(__dirname, '..', 'downloads', '.progress', `${projectId}.json`);
+    const uploadsDir = storageService.getPath('uploads', projectId);
+    const downloadsDir = storageService.getPath('downloads', projectId);
+    const zipPath = storageService.getPath('downloads', `${projectId}.zip`);
+    const progressFile = storageService.getPath('downloads', '.progress', `${projectId}.json`);
 
     try {
       if (await fs.pathExists(uploadsDir)) {
@@ -720,7 +721,7 @@ class ProjectController {
   async downloadZip(req, res) {
     try {
       const { projectId } = req.params;
-      const zipPath = path.join(__dirname, '..', 'downloads', `${projectId}.zip`);
+      const zipPath = storageService.getPath('downloads', `${projectId}.zip`);
 
       if (!await fs.pathExists(zipPath)) {
         return res.status(404).json({ error: 'ZIP file not found. It may still be generating or was deleted.' });
@@ -765,7 +766,7 @@ class ProjectController {
         });
       } else if (process.platform === 'win32') {
         // Windows native folder picker using PowerShell
-        const tempScriptPath = path.join(__dirname, '..', 'temp', 'select-folder.ps1');
+        const tempScriptPath = storageService.getPath('temp', 'select-folder.ps1');
         
         // Ensure temp folder exists
         await fs.ensureDir(path.dirname(tempScriptPath));

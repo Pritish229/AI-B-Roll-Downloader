@@ -68,7 +68,8 @@ export const useProjectStore = defineStore('project', {
         this.persistToLocalStorage();
       } catch (err) {
         console.error('Upload failed:', err);
-        this.error = err.response?.data?.error || 'Failed to upload and parse SRT file. Make sure it is valid.';
+        const serverErr = err.response?.data?.error || err.response?.data?.message || (typeof err.response?.data === 'string' ? err.response.data : err.message);
+        this.error = serverErr || 'Failed to upload and parse SRT file. Make sure it is valid.';
         throw err;
       } finally {
         this.isLoading = false;

@@ -28,22 +28,14 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-const os = require('os');
-
-// Helper to determine writable storage base directory (uses /tmp on Vercel)
-const getStorageBase = (folder) => {
-  if (process.env.VERCEL) {
-    return path.join(os.tmpdir(), 'ai-broll', folder);
-  }
-  return path.join(__dirname, folder);
-};
+const storageService = require('./utils/storageService');
 
 // Ensure required directories exist at startup
 const initializeDirs = async () => {
   const dirs = [
-    getStorageBase('uploads'),
-    getStorageBase('downloads'),
-    getStorageBase('temp')
+    storageService.getPath('uploads'),
+    storageService.getPath('downloads'),
+    storageService.getPath('temp')
   ];
 
   for (const dir of dirs) {
@@ -57,7 +49,7 @@ initializeDirs().catch(err => {
 });
 
 // Serve static assets if needed
-app.use('/static', express.static(getStorageBase('downloads')));
+app.use('/static', express.static(storageService.getPath('downloads')));
 
 // Register router
 app.use('/api', apiRouter);

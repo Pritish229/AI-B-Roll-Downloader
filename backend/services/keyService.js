@@ -1,9 +1,10 @@
 const fs = require('fs-extra');
 const path = require('path');
+const storageService = require('../utils/storageService');
 
 class KeyService {
   constructor() {
-    this.configDir = path.join(__dirname, '..', 'config');
+    this.configDir = storageService.getPath('config');
     this.configFile = path.join(this.configDir, 'custom_keys.json');
     this.customKeys = {};
 
