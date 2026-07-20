@@ -37,6 +37,7 @@
             <span>Leave any field blank to use default built-in server keys automatically.</span>
           </div>
           <button 
+            v-if="allowReset"
             @click="resetToDefaults"
             :disabled="isSaving"
             class="text-purple-400 hover:text-purple-200 underline font-semibold transition-colors flex items-center gap-1"
@@ -46,6 +47,12 @@
             </svg>
             Reset All to System Defaults
           </button>
+          <span v-else class="text-xs text-purple-400/80 font-medium flex items-center gap-1.5 bg-purple-900/40 px-2.5 py-1 rounded-md border border-purple-500/20">
+            <svg class="w-3.5 h-3.5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Server Keys Protected
+          </span>
         </div>
 
         <!-- Keys List Form -->
@@ -180,6 +187,7 @@ export default {
   emits: ['close', 'updated'],
   setup(props, { emit }) {
     const keyList = ref([]);
+    const allowReset = ref(true);
     const formKeys = reactive({});
     const showKeys = reactive({});
     const isSaving = ref(false);
@@ -191,6 +199,9 @@ export default {
         const response = await axios.get('/api/config/keys');
         if (response.data && response.data.keys) {
           keyList.value = response.data.keys;
+          if (response.data.allowReset !== undefined) {
+            allowReset.value = response.data.allowReset;
+          }
         }
       } catch (err) {
         console.error('Failed to fetch API key statuses:', err);
@@ -282,6 +293,7 @@ export default {
 
     return {
       keyList,
+      allowReset,
       formKeys,
       showKeys,
       isSaving,

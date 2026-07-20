@@ -78,7 +78,10 @@ class KeyService {
    * Returns metadata and current status for all managed keys
    */
   getAllKeyStatuses(req = null) {
-    return this.managedKeys.map(item => {
+    const isProductionOrVercel = !!process.env.VERCEL || process.env.NODE_ENV === 'production';
+    const allowReset = !isProductionOrVercel;
+
+    const keys = this.managedKeys.map(item => {
       const { keyName, label, signupUrl, description } = item;
       const customVal = (this.customKeys[keyName] || '').trim();
       const envVal = (process.env[keyName] || '').trim().replace(/^['"]|['"]$/g, '');
@@ -112,6 +115,11 @@ class KeyService {
         isConfigured: !!activeVal
       };
     });
+
+    return {
+      allowReset,
+      keys
+    };
   }
 
   /**
@@ -138,6 +146,9 @@ class KeyService {
    * Reset all custom API keys back to default environment settings
    */
   resetKeys() {
+    if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+      throw new Error('Resetting system default API keys is disabled on global production deployment.');
+    }
     this.customKeys = {};
     this._saveCustomKeys();
     return this.getAllKeyStatuses();

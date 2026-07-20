@@ -976,8 +976,8 @@ Rules:
    */
   async getApiKeys(req, res) {
     try {
-      const keys = keyService.getAllKeyStatuses(req);
-      return res.status(200).json({ keys });
+      const data = keyService.getAllKeyStatuses(req);
+      return res.status(200).json(data);
     } catch (error) {
       console.error('Error in getApiKeys:', error);
       return res.status(500).json({ error: 'Failed to retrieve API key statuses' });
@@ -989,8 +989,8 @@ Rules:
    */
   async saveApiKeys(req, res) {
     try {
-      const keys = keyService.saveKeys(req.body);
-      return res.status(200).json({ message: 'API keys updated successfully', keys });
+      const data = keyService.saveKeys(req.body);
+      return res.status(200).json({ message: 'API keys updated successfully', ...data });
     } catch (error) {
       console.error('Error in saveApiKeys:', error);
       return res.status(500).json({ error: 'Failed to save API keys' });
@@ -1002,11 +1002,11 @@ Rules:
    */
   async resetApiKeys(req, res) {
     try {
-      const keys = keyService.resetKeys();
-      return res.status(200).json({ message: 'API keys reset to default', keys });
+      const data = keyService.resetKeys();
+      return res.status(200).json({ message: 'API keys reset to default', ...data });
     } catch (error) {
       console.error('Error in resetApiKeys:', error);
-      return res.status(500).json({ error: 'Failed to reset API keys' });
+      return res.status(403).json({ error: error.message || 'Failed to reset API keys' });
     }
   }
 }
