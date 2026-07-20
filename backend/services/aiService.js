@@ -17,6 +17,7 @@ class AIService {
    *
    * @param {Array<Object>} subtitles
    * @returns {Promise<{ story: string, tags: string[] }>}
+   */
     // ─── GROQ API HELPER ────────────────────────────────────────────────────────
 
   /**
@@ -27,7 +28,7 @@ class AIService {
    * @returns {Promise<string>} The assistant message content
    */
   async _groqChat(systemPrompt, userPrompt, opts = {}) {
-    const apiKey = (process.env.GROK_API_KEY || '').trim().replace(/^['\"]|['\"]$/g, '');
+    const apiKey = keyService.getKey('GROK_API_KEY');
     if (!apiKey) throw new Error('GROK_API_KEY not set');
 
     const body = {
@@ -67,7 +68,7 @@ class AIService {
    * @returns {Promise<{ story: string, tags: string[] }>}
    */
   async generateStoryWithTags(subtitles) {
-    const apiKey = (process.env.GROK_API_KEY || '').trim().replace(/^['\"]|['\"]$/g, '');
+    const apiKey = keyService.getKey('GROK_API_KEY');
 
     if (!apiKey) {
       console.warn('[AIService] GROK_API_KEY not set. Using local fallback for story + tags.');
@@ -177,7 +178,7 @@ Rules:
    * @returns {Promise<Array<Object>>} Subtitles with tags
    */
   async generateTagsFromSupers(subtitles, story = '') {
-    const apiKey = (process.env.GROK_API_KEY || '').trim().replace(/^['\"]|['\"]$/g, '');
+    const apiKey = keyService.getKey('GROK_API_KEY');
 
     if (!apiKey) {
       console.warn('[AIService] GROK_API_KEY not set. Extracting tags using local NLP.');

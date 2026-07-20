@@ -1,24 +1,20 @@
 # AI B-Roll Downloader 🎬
 
-AI B-Roll Downloader is a production-grade full-stack web application designed for video creators, editors, and automation engineers. It ingests standard `.srt` subtitle files, parses their timeline intervals, extracts contextual keywords using Natural Language Processing (NLP), and queries stock media repositories (Pexels & Pixabay) to compile a fully-packaged, downloadable B-roll assets bundle in `.zip` format.
+AI B-Roll Downloader is a premium cross-platform application designed for video creators, editors, and automation engineers. It converts dialogue scripts or standard `.srt` subtitle files into structured, production-ready B-roll stock asset packages downloadable as a `.zip` archive or directly saved to local native directories.
 
 ---
 
 ## 🚀 Key Features
 
-* **Resilient SRT Parsing:** Automatically parses SRT tracks into structured JSON timeline segments.
-* **Cinematic Tag Extraction:** Utilizes `compromise` POS tagging and `keyword-extractor` to intelligently extract nouns, locations, actions, emotions, objects, and cinematic multi-word phrases.
-* **Granular Timeline Editor:** A CapCut/Premiere Pro inspired dark timeline to search, enable/disable, add, delete, or refine timings and texts of individual tracks.
-* **Asset Confirmation Control:** Interactive tag confirming system with tag reordering, inline tag edits, and additions.
-* **Resilient Parallel Downloader:** Executes downloads in a background concurrent queue (limited to 3 parallel downloads to respect API rate limits) with automatic network retry mechanisms.
-* **Structured ZIP Bundling:** Compresses media into a strict folder structure:
-  * `videos/` (HD landscape MP4s)
-  * `images/` (Photos)
-  * `gifs/` (Animated loops)
-  * `shapes/` (Transparent PNG overlays/arrows)
-  * `metadata/` (Detailed source asset listing in `metadata.json`)
-  * `original-script/` (Original subtitle SRT file)
-* **Single-Command Start:** Zero friction startup starting both Express server and Vite frontend concurrently.
+* **Resilient Script & SRT Ingestion:** Parses SRT tracks into structured timeline cues or allows writing scripts manually with auto-transcription.
+* **AI & Local NLP Keyword Extraction:** Uses Groq Llama-3.3/3.1 models and offline POS natural language processing (`compromise`) to generate visual search terms mapped to dialogue lines.
+* **Custom User API Key Management:** Built-in UI settings modal (**⚙️ API Keys**) allowing users to replace system keys with their own API credentials. Includes direct 1-click links to official provider portals.
+* **Granular Premiere-Style Timeline Editor:** Tabbed script editor with Cues timeline for inline timing edits, tag confirming, and visual story previews.
+* **Multiple Aesthetic Tone Customization:** Select multiple aesthetic visual tones (Cinematic, Warm Golden Glow, Moody Dark, Modern Clean, Vibrant Color) simultaneously to enrich stock search queries.
+* **Multi-Engine Stock Media Fallbacks:** Concurrent, rate-limited stock media searches across **Pexels**, **Pixabay**, **Unsplash**, and **Vecteezy V2**.
+* **Native Cross-Platform Folder Downloader:** Supports picking custom local save directories natively on Windows & macOS (`osascript` & `FolderBrowserDialog`) and opening finished download folders in Explorer/Finder.
+* **3-Minute Post-Compilation Auto-Expiry & Quick Delete:** Automatically purges project folders and ZIP packages after 3 minutes (or via instant **Quick Delete**) to protect data privacy and save disk space.
+* **Native Desktop Application Mode:** Option to run as a standalone desktop application via 1-click Windows launchers (`start-desktop.bat` / `start-desktop.ps1`) or via Electron (`npm run desktop`).
 
 ---
 
@@ -26,19 +22,23 @@ AI B-Roll Downloader is a production-grade full-stack web application designed f
 
 ### Backend
 * **Node.js** (Runtime environment)
-* **Express.js** (REST API)
+* **Express.js** (REST API orchestrator)
+* **Groq Llama 3.3 / 3.1 & Gemini API** (AI transcription, visual story generation & tag pools)
 * **Multer** (Buffer parsing for SRT uploads)
-* **Archiver** (Direct ZIP stream compression)
-* **Compromise & Keyword-Extractor** (NLP parser engine)
-* **fs-extra** (Robust disk operations)
-* **Axios** (Stock API requests and streaming file downloads)
+* **ADM-ZIP** (Synchronous, in-memory zero-corruption archive compiler)
+* **Compromise & Keyword-Extractor** (Offline NLP parser fallbacks)
+* **Axios** (Pexels, Pixabay, Unsplash, Vecteezy V2 REST clients)
 
 ### Frontend
 * **Vue 3** (Composition API)
-* **Vite** (Optimized bundler and proxy dev server)
-* **Tailwind CSS** (obsidian/violet cinematic glassmorphic custom theme)
-* **Pinia** (State registry)
-* **Vue Router** (View orchestration with route protection guards)
+* **Vite** (Optimized bundler & dev server)
+* **Tailwind CSS** (Cinematic glassmorphism custom theme)
+* **Pinia** (State & local storage persistence)
+* **Vue Router** (View & stepper route orchestration)
+
+### Desktop Application Wrappers
+* **Electron** (Cross-platform desktop runner frame)
+* **Edge & Chrome Standalone App Launcher** (1-click borderless desktop application window mode)
 
 ---
 
@@ -47,82 +47,109 @@ AI B-Roll Downloader is a production-grade full-stack web application designed f
 ```text
 ai-b-roll-downloader/
 ├── backend/
+│   ├── config/
+│   │   └── custom_keys.json       # User custom API keys storage
 │   ├── controllers/
-│   │   └── projectController.js
+│   │   └── projectController.js   # Main API logic (transcribe, keys, cleanup, folder pickers)
 │   ├── routes/
-│   │   └── api.js
+│   │   └── api.js                 # Express API endpoints
 │   ├── services/
-│   │   ├── srtParserService.js
-│   │   ├── tagGeneratorService.js
-│   │   ├── pexelsService.js
-│   │   ├── pixabayService.js
-│   │   ├── downloadService.js
-│   │   ├── metadataService.js
-│   │   └── zipService.js
-│   ├── uploads/          # User-uploaded SRT temp files
-│   ├── downloads/        # Downloaded asset directories and ZIPs
-│   ├── index.js          # Express entrypoint
+│   │   ├── keyService.js          # Dynamic API Key resolution manager
+│   │   ├── aiService.js           # Groq Llama 3.3/3.1 story & tag orchestrator
+│   │   ├── srtParserService.js    # SRT subtitle timeline parser
+│   │   ├── tagGeneratorService.js # Local rule-based NLP tag fallback
+│   │   ├── pexelsService.js       # Pexels API search client
+│   │   ├── pixabayService.js      # Pixabay API search client
+│   │   ├── unsplashService.js     # Unsplash photo API search client
+│   │   ├── vecteezyService.js     # Vecteezy V2 graphic API search client
+│   │   ├── downloadService.js     # Parallel asset downloader queue
+│   │   ├── metadataService.js     # Structural metadata.json generator
+│   │   └── zipService.js          # ADM-ZIP compiler
+│   ├── uploads/                   # Temp SRT uploads
+│   ├── downloads/                 # Active asset compile directories
+│   ├── index.js                   # Node Express entrypoint
 │   └── package.json
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
+│   │   │   └── ApiKeyModal.vue    # Glassmorphism API Keys configuration modal
 │   │   ├── pages/
 │   │   │   ├── UploadPage.vue
 │   │   │   ├── ScriptEditorPage.vue
 │   │   │   ├── TagsPage.vue
+│   │   │   ├── VideoSettingsPage.vue
 │   │   │   └── DownloadPage.vue
-│   │   ├── router/
-│   │   │   └── index.js
 │   │   ├── stores/
-│   │   │   └── project.js
-│   │   ├── App.vue
-│   │   ├── main.js
-│   │   └── style.css
-│   ├── index.html
-│   ├── vite.config.js
-│   ├── tailwind.config.js
+│   │   │   └── project.js         # Pinia state management
+│   │   ├── App.vue                # Main layout with header stepper & API keys button
+│   │   └── main.js
 │   └── package.json
 │
-├── package.json          # Orchestrator package.json
-├── .gitignore
-├── .env.example
+├── electron/
+│   └── main.js                    # Electron desktop entry process
+├── start-desktop.bat              # 1-Click Windows Batch Desktop Launcher
+├── start-desktop.ps1              # 1-Click Windows PowerShell Desktop Launcher
+├── project_architecture_and_changes.md # Complete technical architecture documentation
+├── package.json                   # Workspace orchestrator package.json
 └── README.md
 ```
 
 ---
 
-## 🔧 Installation & Getting Started
+## 🔧 Installation & Quick Start
 
 ### Prerequisites
-Make sure you have [Node.js](https://nodejs.org) (v16+) and `npm` installed.
+* Windows or macOS
+* [Node.js](https://nodejs.org) (v16+ installed). *Note: Running `start-desktop.bat` or `start-desktop.ps1` will automatically detect, download, and install Node.js v20 LTS if missing!*
 
-### Step 1: Clone the Repository and Install Dependencies
-In the root directory, simply run:
+### Step 1: Install Dependencies
+Run in the project root directory:
 ```bash
 npm install
 ```
-*This will automatically install packages in the root, and immediately trigger the `postinstall` script to set up both the `/frontend` and `/backend` modules.*
+*This installs root packages and automatically runs `postinstall` to install dependencies in `/frontend` and `/backend`.*
 
-### Step 2: Configure Environment Keys
-Create a `.env` file in the `backend/` directory (or fill in the template at the root `.env.example`):
-```env
-PORT=5005
-PEXELS_API_KEY=your_pexels_api_key_here
-PIXABAY_API_KEY=your_pixabay_api_key_here
-```
+---
 
-> [!NOTE]
-> If you don't have stock media API keys, the application is built with a **robust self-healing stock simulator**. It will automatically fallback to served high-quality landscape B-roll footage (Mixkit creative commons videos and beautiful Unsplash images) so you can test the entire pipeline end-to-end without needing keys!
+## 🔑 Custom API Keys Setup
 
-### Step 3: Run the Application
-Start both the client and server concurrently using a single command in the root folder:
+The app includes built-in fallback keys, but you can enter your own custom API keys directly inside the web interface:
+
+1. Click the **"⚙️ API Keys"** button in the top header.
+2. Next to each provider, click **"🔗 Get API Key"** to create a free API key on the official developer sites:
+   * **Groq AI (Llama 3.3/3.1):** [console.groq.com/keys](https://console.groq.com/keys)
+   * **Pexels Stock API:** [pexels.com/api](https://www.pexels.com/api/)
+   * **Pixabay Stock API:** [pixabay.com/api/docs](https://pixabay.com/api/docs/)
+   * **Unsplash API:** [unsplash.com/developers](https://unsplash.com/developers)
+   * **Vecteezy API:** [vecteezy.com/api](https://www.vecteezy.com/api)
+   * **Google Gemini API:** [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
+   * **Pinterest API:** [developers.pinterest.com](https://developers.pinterest.com/)
+3. Paste your key(s) into the input box and click **"Save & Apply Keys"**.
+
+---
+
+## 🖥 Running the Application
+
+### Method 1: Web App Mode (Development Server)
 ```bash
 npm run dev
 ```
+* **Frontend:** [http://localhost:3000](http://localhost:3000)
+* **Backend API:** [http://localhost:5005](http://localhost:5005)
 
-* **Frontend:** Serves on [http://localhost:3000](http://localhost:3000)
-* **Backend API:** Serves on [http://localhost:5005](http://localhost:5005)
+### Method 2: 1-Click Native Desktop App (Windows)
+Double-click `start-desktop.bat` in the root folder or execute in PowerShell:
+```powershell
+.\start-desktop.ps1
+```
+*Launches the application as a clean, borderless native desktop app window using Microsoft Edge or Google Chrome standalone app mode.*
+
+### Method 3: Electron Desktop Runner
+```bash
+npm run desktop
+```
+*Spawns the Express backend process and opens a native Electron application frame.*
 
 ---
 
@@ -130,17 +157,31 @@ npm run dev
 
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
-| `/api/upload` | `POST` | Uploads a `.srt` subtitle file. Parses and stores it. |
-| `/api/script/:projectId` | `GET` | Retrieves parsed subtitle timings. |
-| `/api/tags/generate` | `POST` | Executes NLP extraction to generate stock keywords for script rows. |
-| `/api/assets/download` | `POST` | Triggers background searches, downloads files in queues, and ZIPs them. |
-| `/api/assets/progress/:projectId` | `GET` | Returns active progress percentage and logs of the download queue. |
-| `/api/download/:projectId` | `GET` | Downloads the generated `.zip` project asset package. |
+| `/api/upload` | `POST` | Uploads `.srt` file and parses subtitle Cues. |
+| `/api/transcribe` | `POST` | Transcribes raw script text into Cues via Groq Llama / local NLP. |
+| `/api/story/generate` | `POST` | Generates a cinematic visual narrative from timeline Cues. |
+| `/api/tags/generate` | `POST` | Extracts visual search tags for each line. |
+| `/api/assets/download` | `POST` | Runs background asset search, queues downloads, and compiles ZIP/folder. |
+| `/api/assets/progress/:projectId` | `GET` | Returns real-time percentage and current asset download progress. |
+| `/api/download/:projectId` | `GET` | Downloads the generated `.zip` B-roll asset package. |
+| `/api/cleanup/:projectId` | `POST` | Triggers immediate Quick Delete purge of project folders. |
+| `/api/select-folder` | `POST` | Opens native macOS (`osascript`) or Windows folder browse dialog. |
+| `/api/open-folder` | `POST` | Opens destination directory in Windows Explorer or macOS Finder. |
+| `/api/config/keys` | `GET / POST` | Retrieves status or updates custom user API keys. |
+| `/api/config/keys/reset` | `POST` | Resets all custom API keys back to system defaults. |
 
 ---
 
-## 💎 Production Quality Standards
-* **Rate-Limit Resilience:** Throttles concurrent downloads to prevent stock API ip bans.
-* **Background Processing:** Triggers searches and downloads inside background promises, immediately returning standard JSON to the frontend to prevent gateway timeouts.
-* **Self-Healing Failbacks:** In the absence of API credentials, serves real beautiful stock footage to keep the compiler fully executable.
-* **Clean Memory Footprint:** Uses Streams to pipes assets directly to folders, and pipes the `archiver` file output directly to disk.
+## 💎 Production Quality & Security
+* **Rate-Limit Resilience:** Throttles concurrent downloads to respect stock API limits.
+* **Auto-Purge Hygiene:** 3-minute automatic countdown timer purges compiled folders to free disk space and safeguard user scripts.
+* **Dynamic Key Persistence:** User API keys are stored locally and sanitized across all dynamic API requests.
+
+---
+
+## 👨‍💻 Author & Connect
+
+**Pritish Ranjan Dash**
+
+* **GitHub:** [github.com/Pritish229](https://github.com/Pritish229)
+* **LinkedIn:** [linkedin.com/in/pritish-ranjan-dash-91a2aa245](https://www.linkedin.com/in/pritish-ranjan-dash-91a2aa245/)

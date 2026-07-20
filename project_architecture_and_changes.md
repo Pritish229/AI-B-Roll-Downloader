@@ -117,3 +117,24 @@ h:/CHIGGYS Scripting/
 - **Vecteezy V2 Search Client (`vecteezyService.js`)**: Created a REST API integration client targeting the premium Vecteezy API V2 `/v2/{account_id}/resources` with authorization headers, cache tables, and query filters.
 - **Active Engine UI Badges**: Added glowing green pulse badges for `Unsplash Engine Active` and `Vecteezy Engine Active` to the global header/footer in `App.vue`, and updated the pipeline compilation description in `DownloadPage.vue`.
 - **Integrated Fallback Routine**: Modified the image search thread in `projectController.js` to fall back to Unsplash and Vecteezy searches simultaneously if both Pexels and Pixabay return zero photos, maximizing final timeline coverage.
+
+### G. Custom User API Key Management System
+- **Central Dynamic Resolver (`keyService.js`)**: Created `backend/services/keyService.js` which manages API keys dynamically across all providers (Groq Llama, Pexels, Pixabay, Unsplash, Vecteezy, Gemini, Pinterest). Priority cascade: Request headers -> Saved user custom key (`custom_keys.json`) -> Default system `.env` fallback.
+- **REST Endpoints (`/api/config/keys`)**:
+  - `GET /api/config/keys`: Returns metadata, status badges (`custom`, `default`, `missing`), masked values, and direct developer links for every managed service.
+  - `POST /api/config/keys`: Saves updated custom keys to local disk configuration (`backend/config/custom_keys.json`).
+  - `POST /api/config/keys/reset`: Restores all services back to default system `.env` keys.
+- **Interactive UI Modal (`ApiKeyModal.vue`)**:
+  - Accessible via **"⚙️ API Keys"** in the top navigation header (`App.vue`).
+  - Includes direct 1-click **"🔗 Get API Key"** links opening official developer consoles for Groq (`console.groq.com/keys`), Pexels (`pexels.com/api`), Pixabay (`pixabay.com/api/docs`), Unsplash (`unsplash.com/developers`), Vecteezy (`vecteezy.com/api`), Gemini (`aistudio.google.com/app/apikey`), and Pinterest (`developers.pinterest.com`).
+- **Dynamic Service Binding**: Updated `aiService`, `pexelsService`, `pixabayService`, `unsplashService`, `vecteezyService`, and `pinterestService` with getters and dynamic calls so any custom key saved by the user is applied instantly to script transcription and asset downloading routines.
+
+### H. Native Desktop Application Execution Options
+- **1-Click Standalone Desktop Launcher with Auto-Node Installer (`start-desktop.bat` & `start-desktop.ps1`)**:
+  - Provided root-level 1-click execution scripts.
+  - Automatically detects if Node.js is missing on the system. If missing, it uses `winget` or downloads official `node-v20-x64.msi` directly to install Node.js v20 LTS automatically.
+  - Automatically runs `npm install` on first launch if `node_modules` is missing.
+  - Automatically initializes backend & frontend servers, launching in `--app=http://localhost:3000` borderless standalone window mode via Edge/Chrome without address bars.
+- **Electron Integration (`electron/main.js`)**:
+  - Added an Electron main process wrapper that checks server ports, spawns the Express backend process, and opens a native desktop window frame.
+  - Callable via `npm run desktop`.

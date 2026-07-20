@@ -1,11 +1,15 @@
 const axios = require('axios');
+const keyService = require('./keyService');
 
 class UnsplashService {
   constructor() {
-    this.accessKey = (process.env.UNSPLASH_ACCESS_KEY || process.env.UNSPLASH_API_KEY || '').trim().replace(/^['"]|['"]$/g, '');
     this.secretKey = (process.env.UNSPLASH_SECRET_KEY || '').trim().replace(/^['"]|['"]$/g, '');
     this.baseUrl = 'https://api.unsplash.com';
     this.imageCache = new Map();
+  }
+
+  get accessKey() {
+    return keyService.getKey('UNSPLASH_ACCESS_KEY');
   }
 
   /**

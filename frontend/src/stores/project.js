@@ -29,6 +29,7 @@ export const useProjectStore = defineStore('project', {
       errors: [],
       zipPath: ''
     },
+    apiKeys: [],
     isLoading: false,
     error: null,
     pollInterval: null
@@ -348,6 +349,21 @@ export const useProjectStore = defineStore('project', {
         alert(err.response?.data?.error || 'Failed to trigger Quick Delete.');
       } finally {
         this.isLoading = false;
+      }
+    },
+
+    /**
+     * Retrieves active API key configuration statuses
+     */
+    async fetchApiKeys() {
+      try {
+        const response = await axios.get('/api/config/keys');
+        if (response.data && response.data.keys) {
+          this.apiKeys = response.data.keys;
+        }
+        return this.apiKeys;
+      } catch (err) {
+        console.error('Failed to fetch API keys:', err);
       }
     },
 

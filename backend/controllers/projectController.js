@@ -11,6 +11,7 @@ const metadataService = require('../services/metadataService');
 const zipService = require('../services/zipService');
 const unsplashService = require('../services/unsplashService');
 const vecteezyService = require('../services/vecteezyService');
+const keyService = require('../services/keyService');
 
 class ProjectController {
   constructor() {
@@ -967,6 +968,45 @@ Rules:
     } catch (error) {
       console.error('Error in transcribeScript:', error);
       return res.status(500).json({ error: error.message || 'Failed to transcribe script' });
+    }
+  }
+
+  /**
+   * Retrieves active API key configuration statuses
+   */
+  async getApiKeys(req, res) {
+    try {
+      const keys = keyService.getAllKeyStatuses(req);
+      return res.status(200).json({ keys });
+    } catch (error) {
+      console.error('Error in getApiKeys:', error);
+      return res.status(500).json({ error: 'Failed to retrieve API key statuses' });
+    }
+  }
+
+  /**
+   * Saves updated custom API keys
+   */
+  async saveApiKeys(req, res) {
+    try {
+      const keys = keyService.saveKeys(req.body);
+      return res.status(200).json({ message: 'API keys updated successfully', keys });
+    } catch (error) {
+      console.error('Error in saveApiKeys:', error);
+      return res.status(500).json({ error: 'Failed to save API keys' });
+    }
+  }
+
+  /**
+   * Resets custom API keys back to default environment settings
+   */
+  async resetApiKeys(req, res) {
+    try {
+      const keys = keyService.resetKeys();
+      return res.status(200).json({ message: 'API keys reset to default', keys });
+    } catch (error) {
+      console.error('Error in resetApiKeys:', error);
+      return res.status(500).json({ error: 'Failed to reset API keys' });
     }
   }
 }

@@ -1,11 +1,15 @@
 const axios = require('axios');
+const keyService = require('./keyService');
 
 class PinterestService {
   constructor() {
-    this.accessToken = (process.env.PINTEREST_API_KEY || '').trim().replace(/^['\"]|['\"]$/g, '');
     this.baseUrl = 'https://api.pinterest.com/v5';
     this.imageCache = new Map();
     this.isAvailable = null; // null = untested, true/false after first call
+  }
+
+  get accessToken() {
+    return keyService.getKey('PINTEREST_API_KEY');
   }
 
   /**

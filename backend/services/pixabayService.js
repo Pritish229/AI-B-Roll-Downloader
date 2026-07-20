@@ -1,12 +1,16 @@
 const axios = require('axios');
+const keyService = require('./keyService');
 
 class PixabayService {
   constructor() {
-    this.apiKey = (process.env.PIXABAY_API_KEY || '').trim().replace(/^['"]|['"]$/g, '');
     this.baseUrl = 'https://pixabay.com/api';
     this.videoCache = new Map();
     this.imageCache = new Map();
     this.shapeCache = new Map();
+  }
+
+  get apiKey() {
+    return keyService.getKey('PIXABAY_API_KEY');
   }
 
   async getWithRetry(url, config, retries = 2, delay = 1500) {

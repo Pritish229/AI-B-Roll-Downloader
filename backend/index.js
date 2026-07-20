@@ -52,6 +52,20 @@ app.use('/static', express.static(path.join(__dirname, 'downloads')));
 // Register router
 app.use('/api', apiRouter);
 
+// Serve frontend production build if available, or redirect root to dev server
+const distPath = path.join(__dirname, '..', 'frontend', 'dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/static')) return next();
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.redirect('http://localhost:3000');
+  });
+}
+
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error('Express Error Handler:', err.stack);

@@ -1,11 +1,15 @@
 const axios = require('axios');
+const keyService = require('./keyService');
 
 class PexelsService {
   constructor() {
-    this.apiKey = (process.env.PEXELS_API_KEY || '').trim().replace(/^['"]|['"]$/g, '');
     this.baseUrl = 'https://api.pexels.com';
     this.videoCache = new Map();
     this.imageCache = new Map();
+  }
+
+  get apiKey() {
+    return keyService.getKey('PEXELS_API_KEY');
   }
 
   async getWithRetry(url, config, retries = 2, delay = 1500) {

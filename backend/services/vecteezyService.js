@@ -1,11 +1,15 @@
 const axios = require('axios');
+const keyService = require('./keyService');
 
 class VecteezyService {
   constructor() {
-    this.apiKey = (process.env.VECTEEZY_API_KEY || '').trim().replace(/^['"]|['"]$/g, '');
     this.accountId = (process.env.VECTEEZY_ACCOUNT_ID || '1').trim().replace(/^['"]|['"]$/g, '');
     this.baseUrl = 'https://api.vecteezy.com';
     this.imageCache = new Map();
+  }
+
+  get apiKey() {
+    return keyService.getKey('VECTEEZY_API_KEY');
   }
 
   /**

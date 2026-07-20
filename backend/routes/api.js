@@ -62,6 +62,11 @@ router.post('/select-folder', (req, res) => projectController.selectFolder(req, 
 // Open generated folder in Windows Explorer
 router.post('/open-folder', (req, res) => projectController.openFolder(req, res));
 
+// API Keys Configuration Routes
+router.get('/config/keys', (req, res) => projectController.getApiKeys(req, res));
+router.post('/config/keys', (req, res) => projectController.saveApiKeys(req, res));
+router.post('/config/keys/reset', (req, res) => projectController.resetApiKeys(req, res));
+
 // Pinterest: test access token connection
 router.get('/pinterest/test', async (req, res) => {
   const pinterestService = require('../services/pinterestService');
