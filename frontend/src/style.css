@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #0F0F12;
+    color: #F3F4F6;
+    font-family: 'Outfit', 'Inter', sans-serif;
+  }
+}
+
+/* Premium Glassmorphism classes */
+.glass-panel {
+  background: rgba(22, 22, 29, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(42, 42, 56, 0.7);
+}
+
+.glass-card {
+  background: rgba(30, 30, 38, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(42, 42, 56, 0.45);
+}
+
+.glass-input {
+  background: rgba(15, 15, 18, 0.6);
+  border: 1px solid rgba(42, 42, 56, 0.8);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-input:focus {
+  border-color: #7C3AED;
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.25);
+  outline: none;
+}
+
+/* Scrollbar styles for professional editing timeline look */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 15, 18, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(42, 42, 56, 0.8);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7C3AED;
+}
+
+/* Glow effects */
+.text-glow {
+  text-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+}
+
+.border-glow {
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
+}

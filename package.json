@@ -1,0 +1,15 @@
+{
+  "name": "ai-b-roll-downloader",
+  "version": "1.0.0",
+  "description": "AI B-Roll Downloader - Convert SRT subtitles into B-roll packs",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "npm install --prefix backend && npm install --prefix frontend",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "author": "Antigravity",
+  "license": "ISC"
+}
